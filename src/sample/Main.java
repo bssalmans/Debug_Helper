@@ -1,6 +1,7 @@
 package sample;
 
 import java.io.File;
+import java.io.IOException;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -10,6 +11,7 @@ import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.VBoxBuilder;
+
 
 public class Main extends Application {
     public static void main(String[] args) { launch(args); }
@@ -23,8 +25,7 @@ public class Main extends Application {
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT Files(*.txt)", "*.txt");
             fc.getExtensionFilters().add(extFilter);
             File file = fc.showOpenDialog(primaryStage);
-            //System.out.println(file);
-
+            try { debugParser.indentFile(file); } catch (IOException ioe) {}
         });
         VBox vBox = VBoxBuilder.create().children(buttonLoad).build();
         root.getChildren().add(vBox);
