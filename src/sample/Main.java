@@ -18,14 +18,15 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
+        primaryStage.setTitle("Debug Log Parser");
         Group root = new Group();
-        Button buttonLoad = new Button("Load");
+        Button buttonLoad = new Button("Indent");
         buttonLoad.setOnAction(arg0 -> {
             FileChooser fc = new FileChooser();
             FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT Files(*.txt)", "*.txt");
             fc.getExtensionFilters().add(extFilter);
             File file = fc.showOpenDialog(primaryStage);
-            try { debugParser.indentFile(file); } catch (IOException ioe) {}
+            try { debugParser.indentFile(file); } catch (IOException ioe) {} finally {}
         });
         VBox vBox = VBoxBuilder.create().children(buttonLoad).build();
         root.getChildren().add(vBox);
