@@ -72,7 +72,7 @@ public class Main extends Application {
         });
         grid.add(selectFile_btn,0,1);
 
-        Scene menu = new Scene(grid,300,275);
+        Scene menu = new Scene(grid,450,350);
         primaryStage.setScene(menu);
         menu.getStylesheets().add(Main.class.getResource("debug.css").toExternalForm());
         primaryStage.show();
