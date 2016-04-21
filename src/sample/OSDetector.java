@@ -19,5 +19,5 @@ public class OSDetector
 
     public static boolean isWindows() { return isWindows; }
     public static boolean isLinux() { return isLinux; }
-    public static boolean isMac() { return isMac; };
+    public static boolean isMac() { return isMac; }
 }

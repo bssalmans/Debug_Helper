@@ -24,26 +24,27 @@ public class debugParser
         String abPath;
         File ofile = new File("parsedLog.txt");
 
-        // saving file ion working directory is not working
-//        if(OSDetector.isWindows())
-//        {
-//            int index = inPath.lastIndexOf("\\", inPath.length());
-//            abPath = inPath.substring(0,index);
-//            ofile = new File(abPath + "parsedLog.txt");
-//        }
-//        else if(OSDetector.isMac() || OSDetector.isLinux())
-//        {
-//            int index = inPath.lastIndexOf("/", inPath.length());
-//            abPath = inPath.substring(0,index);
-//            ofile = new File(abPath + "parsedLog.txt");
-//        }
-//        else
-//        {
-//            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//            alert.setTitle("Sorry, guy...");
-//            alert.setContentText("I don't know what operating system you're using and therefore can't open the file.");
-//            return;
-//        }
+        /* saving file in working directory is not working
+        if(OSDetector.isWindows())
+        {
+            int index = inPath.lastIndexOf("\\", inPath.length());
+            abPath = inPath.substring(0,index);
+            ofile = new File(abPath + "parsedLog.txt");
+        }
+        else if(OSDetector.isMac() || OSDetector.isLinux())
+        {
+            int index = inPath.lastIndexOf("/", inPath.length());
+            abPath = inPath.substring(0,index);
+            ofile = new File(abPath + "parsedLog.txt");
+        }
+        else
+        {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sorry, guy...");
+            alert.setContentText("I don't know what operating system you're using and therefore can't open the file.");
+            return;
+        }
+        */
 
         PrintWriter writer = new PrintWriter(ofile);
 
@@ -54,8 +55,6 @@ public class debugParser
             if(line.contains(fin) || line.contains(ext) || line.contains(end)) { if(tabs > 0) tabs--; }
             for(int i = tabs; i > 0; i--) spaces += "  -  ";
             tabbedLine = spaces + line;
-            //System.out.println("Spaces: " + spaces);
-            //System.out.println(tabbedLine);
             writer.println(tabbedLine);
             if(line.contains(strt) || line.contains(ent) || (line.contains(bgin) && !line.contains(var))) { tabs++; }
         }
