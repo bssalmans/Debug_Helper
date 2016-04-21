@@ -46,11 +46,7 @@ public class Main extends Application {
         Button indent_btn = new Button("Indent");
         indent_btn.setOnAction(arg0 ->
         {
-//            FileChooser fc = new FileChooser();
-//            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT Files(*.txt)", "*.txt");
-//            fc.getExtensionFilters().add(extFilter);
-//            File file = fc.showOpenDialog(primaryStage);
-            try { debugParser.indentFile(file[0]); } catch (IOException ioe) {} finally {  }
+            try { debugParser.indentFile(file[0]); } catch (IOException ioe) {} finally {}
         });
         indent_btn.setDisable(true);
         grid.add(indent_btn,0,4);
@@ -58,7 +54,7 @@ public class Main extends Application {
         Button queryCount_btn = new Button("Query Counter");
         queryCount_btn.setOnAction(arg0 ->
         {
-            // TODO: IMPLEMENT NEW "SCENE(?)" or "STAGE(?)" TO SHOW METRICS OF QUERY
+            try { debugParser.queryCounter((file[0])); } catch (IOException ioe) {} finally {}
         });
         queryCount_btn.setDisable(true);
         grid.add(queryCount_btn,1,4);
@@ -72,6 +68,7 @@ public class Main extends Application {
             file[0] = fc.showOpenDialog(primaryStage);
             filename.setText(file[0].getName());
             indent_btn.setDisable(false);
+            queryCount_btn.setDisable(true);
         });
         grid.add(selectFile_btn,0,1);
 
