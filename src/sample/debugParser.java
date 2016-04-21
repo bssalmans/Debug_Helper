@@ -74,6 +74,7 @@ public class debugParser
         open(ofile);
     }
 
+    // TODO: Figure out stage/scene shange
     public static void queryCounter(File infile) throws IOException
     {
         HashMap<String,Integer> qCount = new HashMap<>();
