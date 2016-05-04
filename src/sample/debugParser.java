@@ -4,6 +4,10 @@ import javafx.scene.control.Alert;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+import static java.util.Collections.reverseOrder;
 
 /**
  * Created by bssalmans on 4/18/2016.
@@ -191,7 +195,7 @@ public class debugParser
             if(line.contains(soql))
             {
                 index = line.lastIndexOf("|", line.length());
-                if(index >= 1)
+                if(index >= 1 && !line.contains("Row"))
                 {
                     query = line.substring(index,line.length()-1);
                     if(qCount.keySet().contains(query)) qCount.put(query,qCount.get(query) + 1);
@@ -200,7 +204,8 @@ public class debugParser
             }
         }
 
-        Iterator it = qCount.entrySet().iterator();
+        HashMap<String,Integer> newQCount = (HashMap)sortByValue(qCount);
+        Iterator it = newQCount.entrySet().iterator();
         while(it.hasNext())
         {
             HashMap.Entry pair = (HashMap.Entry)it.next();
@@ -237,5 +242,15 @@ public class debugParser
             e.printStackTrace(System.err);
             return false;
         }
+    }
+
+    public static Map<String,Integer> sortByValue(Map<String,Integer> map)
+    {
+        Map<String,Integer> result = new LinkedHashMap<>();
+        Stream<Map.Entry<String,Integer>> st = map.entrySet().stream();
+
+        st.sorted(reverseOrder(Map.Entry.comparingByValue())).forEachOrdered(e -> result.put(e.getKey(), e.getValue()));
+
+        return result;
     }
 }
