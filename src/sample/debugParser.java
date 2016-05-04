@@ -1,17 +1,9 @@
 package sample;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by bssalmans on 4/18/2016.
@@ -25,18 +17,25 @@ public class debugParser
     static String ext = "EXIT";
     static String end = "END";
     static String var = "VARIABLE";
-    static String soql = "SOQL_EXECUTE_BEGIN";
+    static String soql = "SOQL";
+    static String cu = "CODE_UNIT";
+    static String meth = "METHOD";
+    static String con = "CONSTRUCTOR";
+    static String exe = "EXECUTION";
+    static String dml = "DML";
+    static String err = "ERROR";
 
     static void indentFile(File infile) throws IOException
     {
         int tabs = 0;
         String spaces;
         String tabbedLine;
-//        String inPath = infile.getAbsolutePath();
-//        String abPath;
+        //String inPath = infile.getAbsolutePath();
+        //String abPath;
         File ofile = new File("parsedLog.txt");
 
         // TODO: Figure out saving in working directory
+        // region working directory code
         /* saving file in working directory is not working
         if(OSDetector.isWindows())
         {
@@ -58,6 +57,7 @@ public class debugParser
             return;
         }
         */
+        //endregion
 
         PrintWriter writer = new PrintWriter(ofile);
 
@@ -71,17 +71,119 @@ public class debugParser
             writer.println(tabbedLine);
             if(line.contains(strt) || line.contains(ent) || (line.contains(bgin) && !line.contains(var))) { tabs++; }
         }
+        writer.close();
         open(ofile);
     }
 
-    // TODO: Figure out stage/scene shange
+    static void createXMLFile(File infile) throws IOException
+    {
+        String[] section = new String[5];
+        //String inPath = infile.getAbsolutePath();
+        //String abPath;
+        File ofile = new File("parsedLog.xml");
+
+        // TODO: Figure out saving in working directory
+        //region Working directory code
+        /* saving file in working directory is not working
+        if(OSDetector.isWindows())
+        {
+            int index = inPath.lastIndexOf("\\", inPath.length());
+            abPath = inPath.substring(0,index);
+            ofile = new File(abPath + "parsedLog.txt");
+        }
+        else if(OSDetector.isMac() || OSDetector.isLinux())
+        {
+            int index = inPath.lastIndexOf("/", inPath.length());
+            abPath = inPath.substring(0,index);
+            ofile = new File(abPath + "parsedLog.txt");
+        }
+        else
+        {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Sorry, guy...");
+            alert.setContentText("I don't know what operating system you're using and therefore can't open the file.");
+            return;
+        }
+        */
+        //endregion
+
+        PrintWriter writer = new PrintWriter(ofile);
+        writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        writer.println("<?xml-stylesheet type=\"text/xsl\" href=\"logStyle.xsl\"?>");
+        writer.println("<log>");
+
+        BufferedReader br = new BufferedReader(new FileReader(infile));
+        for(String line = br.readLine(); line != null; line = br.readLine())
+        {
+            // line type
+            if(line.contains(cu)) section[0] = "<type>Code</type>";
+            else if(line.contains(meth)) section[0] = "<type>Method</type>";
+            else if(line.contains(con)) section[0] = "<type>Constructor</type>";
+            else if(line.contains(soql)) section[0] = "<type>SOQL</type>";
+            else if(line.contains(exe)) section[0] = "<type>Execution</type>";
+            else if(line.contains(dml)) section[0] = "<type>DML</type>";
+            else if(line.contains(err)) section[0] = "<type>Error</type>";
+            else section[0] = "<type>Unknown</type>";
+            // section start/end (start=true/end=false/other=null)
+            if(line.contains(strt) || line.contains(ent) || (line.contains(bgin))) section[1] = "<start>true</start>";
+            else if(line.contains(fin) || line.contains(ext) || line.contains(end)) section[1] = "<start>false</start>";
+            else section[1] = "<start>null</start>";
+            // payload (type dependent)
+            if(section[0].contains("Code") && section[1].contains("true"))
+            {
+                String payload = line.substring(line.lastIndexOf("|")+1, line.length());
+                section[2] = "<codesection>"+payload+"</codesection>";
+            }
+            else if(section[0].contains("Method") && section[1].contains("true"))
+            {
+                String payload = line.substring(line.lastIndexOf("|")+1, line.length());
+                section[2] = "<method>"+payload+"</method>";
+            }
+            else if(section[0].contains("SOQL") && section[1].contains("true"))
+            {
+                String payload = line.substring(line.lastIndexOf("|")+1, line.length());
+                section[2] = "<query>"+payload+"</query>";
+            }
+            else if(section[0].contains("SOQL") && section[1].contains("false"))
+            {
+                String payload = line.substring(line.lastIndexOf(":")+1, line.length());
+                section[2] = "<queryRows>"+payload+"</queryRows>";
+            }
+            else if(section[0].contains("DML") && section[1].contains("true"))
+            {
+                String[] payload = line.split("[|]");
+                section[2] = "<op>"+payload[3].substring(payload[3].lastIndexOf(":")+1,payload[3].length())+"</op>";
+                section[3] = "<object>"+payload[4].substring(payload[4].lastIndexOf(":")+1,payload[4].length())+"</object>";
+                section[4] = "<rows>"+payload[5].substring(payload[5].lastIndexOf(":")+1,payload[5].length())+"</rows>";
+            }
+
+            writer.println("<line>");
+            writer.println("    "+section[0]);
+            writer.println("    "+section[1]);
+            if(section[2]!=null) writer.println("    "+section[2]);
+            if(section[3]!=null) writer.println("    "+section[3]);
+            if(section[4]!=null) writer.println("    "+section[4]);
+            writer.println("</line>");
+
+            for(int i=0;i<5;i++) section[i]=null;
+        }
+        writer.println("</log>");
+        writer.close();
+        open(ofile);
+    }
+
+    // TODO: Figure out stage/scene change
     public static void queryCounter(File infile) throws IOException
     {
         HashMap<String,Integer> qCount = new HashMap<>();
 
-        String inPath = infile.getAbsolutePath();
+        //String inPath = infile.getAbsolutePath();
         String query;
         int index;
+
+        File ofile = new File("queryCount.txt");
+
+        PrintWriter writer = new PrintWriter(ofile);
 
         BufferedReader br = new BufferedReader(new FileReader(infile));
         for(String line = br.readLine(); line != null; line = br.readLine())
@@ -89,38 +191,23 @@ public class debugParser
             if(line.contains(soql))
             {
                 index = line.lastIndexOf("|", line.length());
-                query = line.substring(index,line.length()-1);
-                if(qCount.keySet().contains(query)) qCount.put(query,qCount.get(query) + 1);
-                else qCount.put(query, new Integer(1));
+                if(index >= 1)
+                {
+                    query = line.substring(index,line.length()-1);
+                    if(qCount.keySet().contains(query)) qCount.put(query,qCount.get(query) + 1);
+                    else qCount.put(query, new Integer(1));
+                }
             }
         }
 
-        Stage qStage = new Stage();
-        qStage.setTitle("Query Metrics");
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10);
-        grid.setVgap(10);
-        grid.setPadding(new Insets(25,25,25,25));
-
-        Text file_txt = new Text("Results");
-        file_txt.setId("option-text");
-        grid.add(file_txt,0,0,2,1);
-
-        int rowCount = 1;
-        ArrayList<Text> qs = new ArrayList<>();
         Iterator it = qCount.entrySet().iterator();
         while(it.hasNext())
         {
             HashMap.Entry pair = (HashMap.Entry)it.next();
-            qs.add(new Text(pair.getKey() + ": " + pair.getValue()));
-            grid.add(qs.get(rowCount-1),0,rowCount);
+            writer.println(pair.getValue() + " time(s): " + pair.getKey());
         }
-
-        Scene qScene = new Scene(grid,300,275);
-        qStage.setScene(qScene);
-        qScene.getStylesheets().add(Main.class.getResource("debug.css").toExternalForm());
-        qStage.show();
+        writer.close();
+        open(ofile);
     }
 
     public static boolean open(File file)

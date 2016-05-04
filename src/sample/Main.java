@@ -51,13 +51,21 @@ public class Main extends Application {
         indent_btn.setDisable(true);
         grid.add(indent_btn,0,4);
 
+        Button xml_btn = new Button("XML");
+        xml_btn.setOnAction(arg0 ->
+        {
+            try { debugParser.createXMLFile(file[0]); } catch (IOException ioe) {} finally {}
+        });
+        xml_btn.setDisable(true);
+        grid.add(xml_btn,1,4);
+
         Button queryCount_btn = new Button("Query Counter");
         queryCount_btn.setOnAction(arg0 ->
         {
             try { debugParser.queryCounter((file[0])); } catch (IOException ioe) {} finally {}
         });
         queryCount_btn.setDisable(true);
-        grid.add(queryCount_btn,1,4);
+        grid.add(queryCount_btn,2,4);
 
         Button selectFile_btn = new Button("Select File");
         selectFile_btn.setOnAction(arg0 ->
@@ -68,7 +76,8 @@ public class Main extends Application {
             file[0] = fc.showOpenDialog(primaryStage);
             filename.setText(file[0].getName());
             indent_btn.setDisable(false);
-            queryCount_btn.setDisable(true);
+            xml_btn.setDisable(true);
+            queryCount_btn.setDisable(false);
         });
         grid.add(selectFile_btn,0,1);
 
